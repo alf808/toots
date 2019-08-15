@@ -1,10 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 import sys
+import pyfiglet
 
-def get_tweets(url):
+
+def get_tweets(url, term, sym):
     tweets = []
-    #hash_tag = input("Enter hashtag to seasrch:  ")
     results = requests.get(url,
        # params={'q':'%23' + hash_tag},
         headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel   Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.     3809.100 Safari/537.36'}
@@ -14,14 +15,19 @@ def get_tweets(url):
     selected = content.select('div.tweet')
     #print(selected)
     c = 0
+    fig = pyfiglet.figlet_format(f' \t{sym} {term}')
+    print(fig)
     for tweet in selected:
         c += 1
         sel_name = tweet.select('strong.fullname')[0].get_text()
         sel_handle = tweet.select('span.username')[0].get_text()
         sel_pic = tweet.select('img.avatar')[0]['src']
         sel_tw = tweet.select('p.tweet-text')[0].get_text()
-        tweets.append(f'{c}:{sel_name}, {sel_handle}, {sel_tw}, {sel_pic}')
-    #print(tweets)
+        output = f'{c}:{sel_name}, {sel_handle}, {sel_tw}, {sel_pic}'
+        tweets.append(output)
+    
+    print("The latest 5 tweet samples. See external file for full output.\n")
+    print(*tweets[:5], sep='\n\n')
 
     strung = '\n'.join(tweets)
     with open('temp.txt', 'w') as fo:
@@ -29,6 +35,9 @@ def get_tweets(url):
 
 
 def main():
+    fig = pyfiglet.figlet_format("Welcome to Twitbot")
+    print(fig)
+
     choice = "0"
     while True:
         print("\nMenu Choices:")
@@ -36,16 +45,12 @@ def main():
         choice = input('Enter your choice: ')
         if choice == "1":
             type = input("Enter your hashtag: ")
-            get_tweets("https://twitter.com/search?q=%23" + type)
+            get_tweets("https://twitter.com/search?q=%23" + type, type, '#')
         elif choice == "2":
-            type = input("Input Username: ")
-            get_tweets("https://twitter.com/" +type)
+            type = input("Enter user handle: ")
+            get_tweets("https://twitter.com/" + type, type, '@')
         elif choice == "x":
             sys.exit("Thanks for wasting our time")
-    #else:
-        # msg = random.choice(error_list)
-        # print("\n" + msg)
-
 
 
 if __name__=="__main__":
