@@ -15,7 +15,7 @@ def get_tweets(url, term, sym):
     selected = content.select('div.tweet')
     #print(selected)
     c = 0
-    fig = pyfiglet.figlet_format(f' \t{sym} {term}')
+    fig = pyfiglet.figlet_format(f'   {sym} {term}')
     print(fig)
     for tweet in selected:
         c += 1
@@ -35,13 +35,13 @@ def get_tweets(url, term, sym):
 
 
 def main():
-    fig = pyfiglet.figlet_format("Welcome to Twitbot")
+    fig = pyfiglet.figlet_format("This is Twitbot")
     print(fig)
-
+    print("We can get the latest tweets from twitverse -- by hashtag or user handle.")
     choice = "0"
     while True:
         print("\nMenu Choices:")
-        print("(1) Search Hashtag\t(2) Tweets by User\t(x) Exit")
+        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(x) Exit")
         choice = input('Enter your choice: ')
         if choice == "1":
             type = input("Enter your hashtag: ")
@@ -51,6 +51,8 @@ def main():
             get_tweets("https://twitter.com/" + type, type, '@')
         elif choice == "x":
             sys.exit("Thanks for wasting our time")
+        else:
+            print("\nThat option is not currently supported.")
 
 
 if __name__=="__main__":
