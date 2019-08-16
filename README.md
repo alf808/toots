@@ -6,9 +6,9 @@ Please see requirements.txt for other installation requirements. This was
 tested using python 3.7.4.
 
 ## Usage:
-
-        python twitbot.py
-
+```
+python3 twitbot.py
+```
 Select from the menu options how you would like to interact with twitverse.
 
 ## Requirements:
@@ -26,3 +26,4 @@ python modules:
 - https://www.crummy.com/software/BeautifulSoup/bs4/doc/
 - https://dev.to/ayushsharma/a-guide-to-web-scraping-in-python-using-beautifulsoup-1kgo
 - https://www.journaldev.com/23763/python-remove-spaces-from-string
+- https://realpython.com/python-requests/#request-headers
