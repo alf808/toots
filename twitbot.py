@@ -1,3 +1,13 @@
+'''This application will extract data from twitverse based on hashtag terms
+or user's handle. This app uses BeautifulSoup and pyfiglet third-party modules.
+Please see requirements.txt for other installation requirements. This was
+tested using python 3.7.4.
+
+Usage:
+        python twitbot.py
+
+Select from the menu options how you would like to interact with twitverse.
+'''
 import requests
 from bs4 import BeautifulSoup
 import sys
@@ -5,33 +15,52 @@ import pyfiglet
 
 
 def get_tweets(url, term, sym):
+    '''Extract tweets based on term'''
     tweets = []
     results = requests.get(url,
        # params={'q':'%23' + hash_tag},
         headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel   Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.     3809.100 Safari/537.36'}
     )
     content = BeautifulSoup(results.text, 'html.parser')
-    # print(content)
     selected = content.select('div.tweet')
     #print(selected)
     c = 0
     fig = pyfiglet.figlet_format(f'   {sym} {term}')
     print(fig)
-    for tweet in selected:
-        c += 1
-        sel_name = tweet.select('strong.fullname')[0].get_text()
-        sel_handle = tweet.select('span.username')[0].get_text()
-        sel_pic = tweet.select('img.avatar')[0]['src']
-        sel_tw = tweet.select('p.tweet-text')[0].get_text()
-        output = f'{c}:{sel_name}, {sel_handle}, {sel_tw}, {sel_pic}'
-        tweets.append(output)
-    
-    print("The latest 5 tweet samples. See external file for full output.\n")
-    print(*tweets[:5], sep='\n\n')
+    if len(selected) > 0:
+        for tweet in selected:
+            c += 1
+            sel_name = tweet.select('strong.fullname')[0].get_text()
+            sel_handle = tweet.select('span.username')[0].get_text()
+            sel_pic = tweet.select('img.avatar')[0]['src']
+            sel_tw = tweet.select('p.tweet-text')[0].get_text()
+            output = f'{c}:{sel_name}, {sel_handle}, {sel_tw}, {sel_pic}'
+            tweets.append(output)
+        
+        print("The latest 5 tweet samples. See external file for full output.\n")
+        print(*tweets[:5], sep='\n')
 
-    strung = '\n'.join(tweets)
-    with open('temp.txt', 'w') as fo:
-        fo.write(strung)
+        strung = '\n'.join(tweets)
+        with open('temp.txt', 'w') as fo:
+            fo.write(strung)
+    else:
+        print('no results for that term')
+
+
+def get_full_report():
+    '''Output the result of last query.'''
+    try:
+        with open('temp.txt') as fo:
+            output = fo.read()
+    except FileNotFoundError:
+        print('Sorry the full output is not ready.')
+    except:
+        print('Sorry currently not handling the output file.')
+    else:
+        if output:
+            print(output)
+        else:
+            print('\nno results for that term\n')
 
 
 def main():
@@ -41,7 +70,7 @@ def main():
     choice = "0"
     while True:
         print("\nMenu Choices:")
-        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(x) Exit")
+        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(F) Full output of last query\t(x) Exit")
         choice = input('Enter your choice: ')
         if choice == "1":
             type = input("Enter your hashtag: ")
@@ -49,6 +78,8 @@ def main():
         elif choice == "2":
             type = input("Enter user handle: ")
             get_tweets("https://twitter.com/" + type, type, '@')
+        elif choice == "F":
+            get_full_report()
         elif choice == "x":
             sys.exit("Thanks for wasting our time")
         else:
