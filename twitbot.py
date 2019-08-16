@@ -12,6 +12,7 @@ import requests
 from bs4 import BeautifulSoup
 import sys
 import pyfiglet
+import string
 
 
 def get_tweets(url, term, sym):
@@ -25,7 +26,7 @@ def get_tweets(url, term, sym):
     selected = content.select('div.tweet')
     #print(selected)
     c = 0
-    fig = pyfiglet.figlet_format(f'   {sym} {term}')
+    fig = pyfiglet.figlet_format(f' {sym} {term}') # some ascii art
     print(fig)
     if len(selected) > 0:
         for tweet in selected:
@@ -34,10 +35,10 @@ def get_tweets(url, term, sym):
             sel_handle = tweet.select('span.username')[0].get_text()
             sel_pic = tweet.select('img.avatar')[0]['src']
             sel_tw = tweet.select('p.tweet-text')[0].get_text()
-            output = f'{c}:{sel_name}, {sel_handle}, {sel_tw}, {sel_pic}'
+            output = f'{c}: {sel_name}, {sel_handle}, {sel_tw.strip()}, {sel_pic}'
             tweets.append(output)
         
-        print("The latest 5 tweet samples. See external file for full output.\n")
+        print(f"Here are top 5 tweets for {sym}{term}. See external file for full output.\n")
         print(*tweets[:5], sep='\n')
 
         strung = '\n'.join(tweets)
@@ -63,6 +64,14 @@ def get_full_report():
             print('\nno results for that term\n')
 
 
+def elim_space(term):
+    '''eliminate all white spaces
+    https://www.journaldev.com/23763/python-remove-spaces-from-string
+    '''
+    output = term.translate({ord(c): None for c in string.whitespace})
+    return output.lower()
+
+
 def main():
     fig = pyfiglet.figlet_format("This is Twitbot")
     print(fig)
@@ -70,18 +79,20 @@ def main():
     choice = "0"
     while True:
         print("\nMenu Choices:")
-        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(F) Full output of last query\t(x) Exit")
+        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(f) Full output of last query\t(x) Exit")
         choice = input('Enter your choice: ')
         if choice == "1":
             type = input("Enter your hashtag: ")
+            type = elim_space(type)
             get_tweets("https://twitter.com/search?q=%23" + type, type, '#')
         elif choice == "2":
             type = input("Enter user handle: ")
+            type = elim_space(type)
             get_tweets("https://twitter.com/" + type, type, '@')
-        elif choice == "F":
+        elif choice == "f":
             get_full_report()
         elif choice == "x":
-            sys.exit("Thanks for wasting our time")
+            sys.exit("Bye")
         else:
             print("\nThat option is not currently supported.")
 

@@ -23,5 +23,6 @@ python modules:
 
 ## Resources:
 
-https://www.crummy.com/software/BeautifulSoup/bs4/doc/
-https://dev.to/ayushsharma/a-guide-to-web-scraping-in-python-using-beautifulsoup-1kgo
+- https://www.crummy.com/software/BeautifulSoup/bs4/doc/
+- https://dev.to/ayushsharma/a-guide-to-web-scraping-in-python-using-beautifulsoup-1kgo
+- https://www.journaldev.com/23763/python-remove-spaces-from-string
