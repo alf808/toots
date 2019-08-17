@@ -13,6 +13,8 @@ from bs4 import BeautifulSoup
 import sys
 import pyfiglet
 import string
+from textblob import TextBlob
+import re
 
 
 def get_tweets(url, term, sym):
@@ -70,6 +72,19 @@ def elim_space(term):
     '''
     output = term.translate({ord(c): None for c in string.whitespace})
     return output.lower()
+
+
+def get_sentiment(text): 
+    '''function to classify sentiment of tweets using textblob'''
+    # create TextBlob object 
+    analysis = TextBlob(clean_tweet(text))
+    # set sentiment 
+    if analysis.sentiment.polarity > 0: 
+        return ('positive', analysis.sentiment.polarity)
+    elif analysis.sentiment.polarity == 0: 
+        return ('neutral', analysis.sentiment.polarity)
+    else: 
+        return ('negative', analysis.sentiment.polarity)
 
 
 def main():
