@@ -79,7 +79,7 @@ def main():
     choice = "0"
     while True:
         print("\nMenu Choices:")
-        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(f) Full output of last query\t(x) Exit")
+        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(3) Tweets by Keyword\t(f) Full output of last query\t(x) Exit")
         choice = input('Enter your choice: ')
         if choice == "1":
             type = input("Enter your hashtag: ")
@@ -89,6 +89,9 @@ def main():
             type = input("Enter user handle: ")
             type = elim_space(type)
             get_tweets("https://twitter.com/" + type, type, '@')
+        elif choice == "3":
+            type = input("Enter your keyword: ")
+            get_tweets("https://twitter.com/search?q=" + type, type, '')
         elif choice == "f":
             get_full_report()
         elif choice == "x":
