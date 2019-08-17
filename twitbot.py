@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 import sys
 import pyfiglet
 import string
+from selenium import webdriver
 
 
 def get_tweets(url, term, sym):
@@ -46,7 +47,13 @@ def get_tweets(url, term, sym):
             fo.write(strung)
     else:
         print('no results for that term')
+    scroll_down(url, term, sym)
 
+def scroll_down(url, term, sym):
+    driver = webdriver.Chrome()
+    driver.implicitly_wait(30)
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    get_tweets(url, term, sym)
 
 def get_full_report():
     '''Output the result of last query.'''
