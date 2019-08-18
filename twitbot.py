@@ -13,6 +13,14 @@ from bs4 import BeautifulSoup
 import sys
 import pyfiglet
 import string
+import sqlite3
+
+conn = sqlite3.connect("text.db")
+cur = conn.cursor()
+
+
+
+
 
 def get_tweets(url, term, sym):
     '''Extract tweets based on term'''
@@ -36,13 +44,15 @@ def get_tweets(url, term, sym):
             sel_tw = tweet.select('p.tweet-text')[0].get_text()
             output = f'{c}: {sel_name}, {sel_handle}, {sel_tw.strip()}, {sel_pic}'
             tweets.append(output)
-        
+            cur.execute("insert into text (usr, handle, usrpic, tweet) values (?, ?, ?, ?)", (sel_name, sel_handle, sel_pic, sel_tw.strip()))
+            conn.commit()
         print(f"Here are top 5 tweets for {sym}{term}. See external file for full output.\n")
         print(*tweets[:5], sep='\n')
 
         strung = '\n'.join(tweets)
         with open('temp.txt', 'w') as fo:
             fo.write(strung)
+        
     else:
         print('no results for that term')
 
@@ -68,6 +78,8 @@ def get_photos(url, term, sym):
             sel_pic = tweet['data-url']
             output = f'{c}: {sel_handle}, {sel_pic}'
             tweets.append(output)
+            cur.execute("insert into picurl (handle, pic) values (?, ?)", (sel_handle, sel_pic))
+            conn.commit()
         print(tweets)
         
         print(f"Here are top 5 tweets for {sym}{term}. See external file for full output.\n")
