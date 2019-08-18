@@ -14,6 +14,8 @@ import sys
 import pyfiglet
 import string
 import sqlite3
+from textblob import TextBlob
+import re
 
 conn = sqlite3.connect("text.db")
 cur = conn.cursor()
@@ -22,6 +24,7 @@ cur = conn.cursor()
 def get_tweets(url, term, sym):
     '''Extract tweets based on term'''
     tweets = []
+    sents = []
     results = requests.get(url,
        # params={'q':'%23' + hash_tag},
         headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel   Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.     3809.100 Safari/537.36'}
@@ -39,14 +42,20 @@ def get_tweets(url, term, sym):
             sel_handle = tweet.select('span.username')[0].get_text()
             sel_pic = tweet.select('img.avatar')[0]['src']
             sel_tw = tweet.select('p.tweet-text')[0].get_text()
+            sel_sentim, sel_sentim_pt = get_sentiment(sel_tw)
             output = f'{c}: {sel_name}, {sel_handle}, {sel_tw.strip()}, {sel_pic}'
             tweets.append(output)
+            sents.append([sel_sentim, sel_sentim_pt])
             cur.execute("insert into text (usr, handle, usrpic, tweet) values (?, ?, ?, ?)", (sel_name, sel_handle, sel_pic, sel_tw.strip()))
             conn.commit()
+        
+        sent_analysis = process_sentiment_points(tweets,sents)
         print(f"Here are top 5 tweets for {sym}{term}. See external file for full output.\n")
         print(*tweets[:5], sep='\n')
-
+        print('\nSentiment Analysis:\n' + sent_analysis)
+        
         strung = '\n'.join(tweets)
+        strung += f'\n\nSentiment Analysis:\n{sent_analysis}'
         with open('temp.txt', 'w') as fo:
             fo.write(strung)
         
@@ -94,6 +103,17 @@ def get_sqldata():
     print(cur.fetchall())
 
 
+def process_sentiment_points(text_lst, point_lst):
+    '''function to format sentiment analysis'''
+    avg_sentiment_lst = [quant[1] for quant in point_lst]
+    sentiment_lst = [quant[0] for quant in point_lst]
+    avg_sentiment = sum(avg_sentiment_lst) / len(avg_sentiment_lst)
+    pos_com = sentiment_lst.count('positive')
+    neg_com = sentiment_lst.count('negative')
+    neut_com = sentiment_lst.count('neutral')
+    return f'The average sentiment is {avg_sentiment} for this topic, somewhere between -1 (negative) and 1 (positive). There are {pos_com} positive comments, {neg_com} negative comments, and {neut_com} neutral comments.'
+
+
 def get_full_report():
     '''Output the result of last query.'''
     try:
@@ -118,6 +138,25 @@ def elim_space(term):
     return output.lower()
 
 
+def clean_tweet(text): 
+    '''function to clean tweet text by removing links and special characters
+    http://xenon.stanford.edu/~xusch/regexp/'''
+    return ' '.join(re.sub(r"(@[A-Za-z0-9]+) | ([^0-9A-Za-z \t]) | (\w+:\/\/\S+)", " ", text).split())
+
+
+def get_sentiment(text): 
+    '''function to classify sentiment of tweets using textblob'''
+    # create TextBlob object 
+    analysis = TextBlob(clean_tweet(text))
+    # set sentiment 
+    if analysis.sentiment.polarity > 0: 
+        return ('positive', analysis.sentiment.polarity)
+    elif analysis.sentiment.polarity == 0: 
+        return ('neutral', analysis.sentiment.polarity)
+    else: 
+        return ('negative', analysis.sentiment.polarity)
+
+
 def main():
     fig = pyfiglet.figlet_format("This is Twitbot")
     print(fig)
@@ -125,7 +164,7 @@ def main():
     choice = "0"
     while True:
         print("\nMenu Choices:")
-        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(3) Tweets by Keyword\t(4) Tweets by image\t(f) Full output of last query\t(x) Exit")
+        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(3) Tweets by Keyword\t(4) Tweets by image\t(f) Full output of last query\t(s) Pull from data base\t(x) Exit")
         choice = input('Enter your choice: ')
         if choice == "1":
             type = input("Enter your hashtag: ")
