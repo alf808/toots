@@ -13,8 +13,6 @@ from bs4 import BeautifulSoup
 import sys
 import pyfiglet
 import string
-from selenium import webdriver
-
 
 def get_tweets(url, term, sym):
     '''Extract tweets based on term'''
@@ -47,13 +45,37 @@ def get_tweets(url, term, sym):
             fo.write(strung)
     else:
         print('no results for that term')
-    scroll_down(url, term, sym)
 
-def scroll_down(url, term, sym):
-    driver = webdriver.Chrome()
-    driver.implicitly_wait(30)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    get_tweets(url, term, sym)
+def get_photos(url, term, sym):
+    '''Extract tweets based on term'''
+    tweets = []
+    results = requests.get(url,
+       # params={'q':'%23' + hash_tag},
+        headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel   Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.     3809.100 Safari/537.36'}
+    )
+    content = BeautifulSoup(results.text, 'html.parser')
+    selected = content.select('span.tweet-grid')
+    #print(selected)
+    c = 0
+    fig = pyfiglet.figlet_format(f' {sym} {term}') # some ascii art
+    print(fig)
+    if len(selected) > 0:
+        pass
+        # for tweet in selected:
+        #     c += 1
+        #     sel_pic = tweet.select('img')[0]['src']
+        #     output = f'{c}: {sel_pic}'
+        #     tweets.append(output)
+        #print(tweets)
+        
+        #print(f"Here are top 5 tweets for {sym}{term}. See external file for full output.\n")
+        #print(*tweets[:5], sep='\n')
+
+        #strung = '\n'.join(tweets)
+        with open('temp.txt', 'w') as fo:
+            fo.write(str(selected.children))
+    #else:
+     #   print('no results for that term')    
 
 def get_full_report():
     '''Output the result of last query.'''
@@ -86,7 +108,7 @@ def main():
     choice = "0"
     while True:
         print("\nMenu Choices:")
-        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(3) Tweets by Keyword\t(f) Full output of last query\t(x) Exit")
+        print("(1) Tweets by Hashtag\t(2) Tweets by User\t(3) Tweets by Keyword\t(4) Tweets by image\t(f) Full output of last query\t(x) Exit")
         choice = input('Enter your choice: ')
         if choice == "1":
             type = input("Enter your hashtag: ")
@@ -99,6 +121,9 @@ def main():
         elif choice == "3":
             type = input("Enter your keyword: ")
             get_tweets("https://twitter.com/search?q=" + type, type, '')
+        elif choice == "4":
+            type = input("Enter image keyword: ")
+            get_photos("https://twitter.com/search?f=images&q=" + type, type, '')
         elif choice == "f":
             get_full_report()
         elif choice == "x":
