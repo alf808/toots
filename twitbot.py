@@ -46,6 +46,7 @@ def get_tweets(url, term, sym):
     else:
         print('no results for that term')
 
+
 def get_photos(url, term, sym):
     '''Extract tweets based on term'''
     tweets = []
@@ -54,28 +55,30 @@ def get_photos(url, term, sym):
         headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel   Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.     3809.100 Safari/537.36'}
     )
     content = BeautifulSoup(results.text, 'html.parser')
-    selected = content.select('span.tweet-grid')
-    #print(selected)
+    selected = content.select('span.grid-tweet')
+    # print(selected)
     c = 0
     fig = pyfiglet.figlet_format(f' {sym} {term}') # some ascii art
     print(fig)
     if len(selected) > 0:
-        pass
-        # for tweet in selected:
-        #     c += 1
-        #     sel_pic = tweet.select('img')[0]['src']
-        #     output = f'{c}: {sel_pic}'
-        #     tweets.append(output)
-        #print(tweets)
+        # pass
+        for tweet in selected:
+            c += 1
+            sel_handle = tweet['data-screen-name']
+            sel_pic = tweet['data-url']
+            output = f'{c}: {sel_handle}, {sel_pic}'
+            tweets.append(output)
+        print(tweets)
         
-        #print(f"Here are top 5 tweets for {sym}{term}. See external file for full output.\n")
-        #print(*tweets[:5], sep='\n')
+        print(f"Here are top 5 tweets for {sym}{term}. See external file for full output.\n")
+        print(*tweets[:5], sep='\n')
 
-        #strung = '\n'.join(tweets)
+        strung = '\n'.join(tweets)
         with open('temp.txt', 'w') as fo:
-            fo.write(str(selected.children))
-    #else:
-     #   print('no results for that term')    
+            fo.write(strung)
+    else:
+       print('no results for that term')    
+
 
 def get_full_report():
     '''Output the result of last query.'''
