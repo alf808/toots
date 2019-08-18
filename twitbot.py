@@ -19,9 +19,6 @@ conn = sqlite3.connect("text.db")
 cur = conn.cursor()
 
 
-
-
-
 def get_tweets(url, term, sym):
     '''Extract tweets based on term'''
     tweets = []
@@ -92,6 +89,11 @@ def get_photos(url, term, sym):
        print('no results for that term')    
 
 
+def get_sqldata():
+    cur.execute('select * from picurl')
+    print(cur.fetchall())
+
+
 def get_full_report():
     '''Output the result of last query.'''
     try:
@@ -141,6 +143,8 @@ def main():
             get_photos("https://twitter.com/search?f=images&q=" + type, type, '')
         elif choice == "f":
             get_full_report()
+        elif choice == "s":
+            get_sqldata()
         elif choice == "x":
             sys.exit("Bye")
         else:
